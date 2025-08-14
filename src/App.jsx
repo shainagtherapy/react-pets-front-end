@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import * as petServices from './services/petService';
+import * as petService from './services/petService';
 
 import PetList from './components/PetList/PetList';
 import PetDetail from './components/PetDetail/PetDetail';
@@ -9,11 +9,12 @@ const App = () => {
   const [pets, setPets] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  
 
   useEffect(() => {
   const fetchPets = async () => {
     try {
-      const fetchedPets = await petServices.index();
+      const fetchedPets = await petService.index();
     
       if (fetchedPets.err) {
         throw new Error(fetchedPets.err);
@@ -34,10 +35,20 @@ const App = () => {
     setIsFormOpen(!isFormOpen);
   }
 
+  const handleAddPet = async (FormData) => {
+    try {
+      const newPet = await petService.create(FormData);
+      setPets([newPet, ...pets])
+      setIsFormOpen(false);
+    } catch (err) {
+      console.log(err)
+    }
+  };
+
   return (
     <>
     <PetList pets={pets} handleSelect={handleSelect} 
-    handleFormView={handleFormView} isFormOpen={isFormOpen} /> {isFormOpen ? ( <PetForm /> ) : ( <PetDetail selected={selected} /> )}
+    handleFormView={handleFormView} isFormOpen={isFormOpen} /> {isFormOpen ? ( <PetForm handleAddPet={handleAddPet} /> ) : ( <PetDetail selected={selected} /> )}
     </>
   );
 };
